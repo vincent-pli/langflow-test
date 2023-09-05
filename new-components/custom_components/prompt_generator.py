@@ -12,12 +12,15 @@ class PromptGenerator(CustomComponent):
         return { "description": { "multiline": True, "required": True } }
 
     def build(self, description: str, llm: BaseLLM) -> PromptTemplate:
-        prompt_template = "You are a great prompt generator, follow the description to generate a right prompt, description:  {description}. prompt format should be string, just print the prompt content"
+        # prompt_template = "You are a great prompt generator, follow the description to generate a right prompt, description:  {description}. prompt format should be string, just print the prompt content"
+        prompt_template = "{description}"
 
         chain = LLMChain(
             llm=llm, 
             prompt=PromptTemplate.from_template(prompt_template))
         result = chain.run(description)
-
-        prompt_template = PromptTemplate.from_template(str(result) + " {question}")
+        
+        sub = "My first request is "
+        idx = result.rfind(sub)
+        prompt_template = PromptTemplate.from_template(result[:(idx + len(sub))] + "{question}")
         return prompt_template
